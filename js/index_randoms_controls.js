@@ -146,9 +146,9 @@ function calculationsColors(p1info, p2) {
 	checkStatBoost(speedP1, speedP2);
 	var displaySpeeds = getDisplayedSpeeds(speedP1, speedP2, p1field);
 
-	damageResults = calculateAllMoves(gen, p1, p1field, p2, p2field);
-	p1 = damageResults[0][0].attacker;
-	p2 = damageResults[1][0].attacker;
+	var colorDamageResults = calculateAllMoves(gen, p1, p1field, p2, p2field);
+	p1 = colorDamageResults[0][0].attacker;
+	p2 = colorDamageResults[1][0].attacker;
 	p1.maxDamages = [];
 	p2.maxDamages = [];
 	var p1s = displaySpeeds[0];
@@ -162,7 +162,7 @@ function calculationsColors(p1info, p2) {
 	var p1HD = 0, p2HD = 0;
 	for (var i = 0; i < 4; i++) {
 		// P1
-		result = damageResults[0][i];
+		result = colorDamageResults[0][i];
 		//lowest rolls in %
 		damage = result.damage[0] ? result.damage[0] : result.damage;
 		lowestRoll = damage * p1.moves[i].hits / p2.stats.hp * 100;
@@ -183,7 +183,7 @@ function calculationsColors(p1info, p2) {
 		}
 
 		// P2
-		result = damageResults[1][i];
+		result = colorDamageResults[1][i];
 		//some damage like sonic boom acts a bit weird.
 		damage = result.damage[0] ? result.damage[0] : result.damage;
 		lowestRoll = damage * p2.moves[i].hits / p1.stats.hp * 100;
