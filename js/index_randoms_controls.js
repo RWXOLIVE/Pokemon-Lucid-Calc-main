@@ -23,6 +23,37 @@ for (var i = 0; i < 4; i++) {
 }
 
 var damageResults;
+function getDisplayedSpeeds(p1, p2, field) {
+	var generation = GENERATION || calc.Generations.get(gen);
+	var p1Display = p1.clone();
+	var p2Display = p2.clone();
+	var speedField = field.clone();
+
+	if (typeof calc.checkAirLock === "function") {
+		calc.checkAirLock(p1Display, speedField);
+		calc.checkAirLock(p2Display, speedField);
+	}
+	if (typeof calc.checkForecast === "function") {
+		calc.checkForecast(p1Display, speedField.weather);
+		calc.checkForecast(p2Display, speedField.weather);
+	}
+	if (typeof calc.checkItem === "function") {
+		calc.checkItem(p1Display, speedField.isMagicRoom);
+		calc.checkItem(p2Display, speedField.isMagicRoom);
+	}
+
+	var p1Speed = p1Display.stats.spe;
+	var p2Speed = p2Display.stats.spe;
+	if (typeof calc.getFinalSpeed === "function") {
+		p1Speed = calc.getFinalSpeed(generation, p1Display, speedField, speedField.attackerSide);
+		p2Speed = calc.getFinalSpeed(generation, p2Display, speedField, speedField.defenderSide);
+	} else if (typeof calc.getModifiedStat === "function") {
+		p1Speed = calc.getModifiedStat(p1Display.rawStats.spe, p1Display.boosts.spe, generation);
+		p2Speed = calc.getModifiedStat(p2Display.rawStats.spe, p2Display.boosts.spe, generation);
+	}
+	return [p1Speed, p2Speed];
+}
+
 function performCalculations() {
 	var p1info = $("#p1");
 	var p2info = $("#p2");
@@ -30,6 +61,10 @@ function performCalculations() {
 	var p2 = createPokemon(p2info);
 	var p1field = createField();
 	var p2field = p1field.clone().swap();
+	var speedP1 = p1.clone();
+	var speedP2 = p2.clone();
+	checkStatBoost(speedP1, speedP2);
+	var displaySpeeds = getDisplayedSpeeds(speedP1, speedP2, p1field);
 
 	damageResults = calculateAllMoves(gen, p1, p1field, p2, p2field);
 	p1 = damageResults[0][0].attacker;
@@ -37,9 +72,9 @@ function performCalculations() {
 	var battling = [p1, p2];
 	p1.maxDamages = [];
 	p2.maxDamages = [];
-	p1info.find(".sp .totalMod").text(p1.stats.spe);
-	p2info.find(".sp .totalMod").text(p2.stats.spe);
-	var fastestSide = p1.stats.spe > p2.stats.spe ? 0 : p1.stats.spe === p2.stats.spe ? "tie" : 1;
+	p1info.find(".sp .totalMod").text(displaySpeeds[0]);
+	p2info.find(".sp .totalMod").text(displaySpeeds[1]);
+	var fastestSide = displaySpeeds[0] > displaySpeeds[1] ? 0 : displaySpeeds[0] === displaySpeeds[1] ? "tie" : 1;
 
 	var result, maxDamage;
 	var bestResult;
@@ -106,14 +141,18 @@ function calculationsColors(p1info, p2) {
 	var p1 = createPokemon(p1info);
 	var p1field = createField();
 	var p2field = p1field.clone().swap();
+	var speedP1 = p1.clone();
+	var speedP2 = p2.clone();
+	checkStatBoost(speedP1, speedP2);
+	var displaySpeeds = getDisplayedSpeeds(speedP1, speedP2, p1field);
 
 	damageResults = calculateAllMoves(gen, p1, p1field, p2, p2field);
 	p1 = damageResults[0][0].attacker;
 	p2 = damageResults[1][0].attacker;
 	p1.maxDamages = [];
 	p2.maxDamages = [];
-	var p1s = p1.stats.spe;
-	var p2s = p2.stats.spe;
+	var p1s = displaySpeeds[0];
+	var p2s = displaySpeeds[1];
 	//Faster Tied Slower
 	var fastest = p1s > p2s ? "F" : p1s < p2s ? "S" : p1s === p2s ? "T" : undefined;
 	var result, highestRoll, lowestRoll, damage = 0;

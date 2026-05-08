@@ -229,7 +229,7 @@ $(".ability").bind("keyup change", function () {
 
 	var ability = $(this).closest(".poke-info").find(".ability").val();
 
-	var TOGGLE_ABILITIES = ['Flash Fire', 'Intimidate', 'Minus', 'Plus', 'Slow Start', 'Unburden', 'Stakeout', 'Teraform Zero'];
+	var TOGGLE_ABILITIES = ['Flash Fire', 'Electromorphosis','Intimidate', 'Minus', 'Plus', 'Slow Start', 'Unburden', 'Stakeout', 'Teraform Zero'];
 
 	if (TOGGLE_ABILITIES.indexOf(ability) >= 0) {
 		$(this).closest(".poke-info").find(".abilityToggle").show();
@@ -1501,10 +1501,12 @@ function setupTopCritToggles() {
 			syncTopCritToggle(critInput);
 
 			if (sides[s].resultPrefix === "R") {
-				var moveLabel = row.querySelector("label.btn");
-				if (moveLabel) {
-					row.insertBefore(topCritInput, moveLabel);
-					row.insertBefore(topCritLabel, moveLabel);
+				// Keep resultMove input immediately before its move label.
+				// The UI relies on that structure for checked styling and reliable label selection.
+				var resultMoveInput = row.querySelector("input.result-move");
+				if (resultMoveInput) {
+					row.insertBefore(topCritInput, resultMoveInput);
+					row.insertBefore(topCritLabel, resultMoveInput);
 				} else {
 					row.insertBefore(topCritInput, damageSpan);
 					row.insertBefore(topCritLabel, damageSpan);
