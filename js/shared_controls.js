@@ -1971,7 +1971,7 @@ function switchIconDouble(){
 $(document).ready(function () {
 	fillBattleNotes();
 	setupTopCritToggles();
-	setupStatBoostButtons();
+	//setupStatBoostButtons();
 	var params = new URLSearchParams(window.location.search);
 	var g = GENERATION[params.get('gen')] || 9;
 	$("#gen" + g).prop("checked", true);

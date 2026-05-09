@@ -23,6 +23,13 @@ for (var i = 0; i < 4; i++) {
 }
 
 var damageResults;
+function getDisplayedSpeeds(p1, p2, field) {
+	var generation = calc.Generations.get(gen);
+	var p1Speed = calc.getModifiedStat(p1.rawStats.spe, p1.boosts.spe, generation);
+	var p2Speed = calc.getModifiedStat(p2.rawStats.spe, p2.boosts.spe, generation);
+	return [p1Speed, p2Speed];
+}
+
 function performCalculations() {
 	var p1info = $("#p1");
 	var p2info = $("#p2");
@@ -30,6 +37,10 @@ function performCalculations() {
 	var p2 = createPokemon(p2info);
 	var p1field = createField();
 	var p2field = p1field.clone().swap();
+	var speedP1 = p1.clone();
+	var speedP2 = p2.clone();
+	checkStatBoost(speedP1, speedP2);
+	var displaySpeeds = getDisplayedSpeeds(speedP1, speedP2, p1field);
 
 	damageResults = calculateAllMoves(gen, p1, p1field, p2, p2field);
 	p1 = damageResults[0][0].attacker;
@@ -37,9 +48,9 @@ function performCalculations() {
 	var battling = [p1, p2];
 	p1.maxDamages = [];
 	p2.maxDamages = [];
-	p1info.find(".sp .totalMod").text(p1.stats.spe);
-	p2info.find(".sp .totalMod").text(p2.stats.spe);
-	var fastestSide = p1.stats.spe > p2.stats.spe ? 0 : p1.stats.spe === p2.stats.spe ? "tie" : 1;
+	p1info.find(".sp .totalMod").text(displaySpeeds[0]);
+	p2info.find(".sp .totalMod").text(displaySpeeds[1]);
+	var fastestSide = displaySpeeds[0] > displaySpeeds[1] ? 0 : displaySpeeds[0] === displaySpeeds[1] ? "tie" : 1;
 
 	var result, maxDamage;
 	var bestResult;
@@ -56,7 +67,7 @@ function performCalculations() {
 		p1.maxDamages.sort(function (firstMove, secondMove) {
 			return secondMove.maxDamage - firstMove.maxDamage;
 		});
-		$(resultLocations[0][i].move + " + label").text(p1.moves[i].name.replace("Hidden Power", "HP"));
+		$('label[for="' + resultLocations[0][i].move.slice(1) + '"]').text(p1.moves[i].name.replace("Hidden Power", "HP"));
 		$(resultLocations[0][i].damage).text(result.moveDesc(notation));
 
 		// P2
@@ -70,7 +81,7 @@ function performCalculations() {
 		p2.maxDamages.sort(function (firstMove, secondMove) {
 			return secondMove.maxDamage - firstMove.maxDamage;
 		});
-		$(resultLocations[1][i].move + " + label").text(p2.moves[i].name.replace("Hidden Power", "HP"));
+		$('label[for="' + resultLocations[1][i].move.slice(1) + '"]').text(p2.moves[i].name.replace("Hidden Power", "HP"));
 		$(resultLocations[1][i].damage).text(result.moveDesc(notation));
 
 		// BOTH
@@ -106,14 +117,18 @@ function calculationsColors(p1info, p2) {
 	var p1 = createPokemon(p1info);
 	var p1field = createField();
 	var p2field = p1field.clone().swap();
+	var speedP1 = p1.clone();
+	var speedP2 = p2.clone();
+	checkStatBoost(speedP1, speedP2);
+	var displaySpeeds = getDisplayedSpeeds(speedP1, speedP2, p1field);
 
-	damageResults = calculateAllMoves(gen, p1, p1field, p2, p2field);
-	p1 = damageResults[0][0].attacker;
-	p2 = damageResults[1][0].attacker;
+	var colorDamageResults = calculateAllMoves(gen, p1, p1field, p2, p2field);
+	p1 = colorDamageResults[0][0].attacker;
+	p2 = colorDamageResults[1][0].attacker;
 	p1.maxDamages = [];
 	p2.maxDamages = [];
-	var p1s = p1.stats.spe;
-	var p2s = p2.stats.spe;
+	var p1s = displaySpeeds[0];
+	var p2s = displaySpeeds[1];
 	//Faster Tied Slower
 	var fastest = p1s > p2s ? "F" : p1s < p2s ? "S" : p1s === p2s ? "T" : undefined;
 	var result, highestRoll, lowestRoll, damage = 0;
@@ -123,7 +138,7 @@ function calculationsColors(p1info, p2) {
 	var p1HD = 0, p2HD = 0;
 	for (var i = 0; i < 4; i++) {
 		// P1
-		result = damageResults[0][i];
+		result = colorDamageResults[0][i];
 		//lowest rolls in %
 		damage = result.damage[0] ? result.damage[0] : result.damage;
 		lowestRoll = damage * p1.moves[i].hits / p2.stats.hp * 100;
@@ -144,7 +159,7 @@ function calculationsColors(p1info, p2) {
 		}
 
 		// P2
-		result = damageResults[1][i];
+		result = colorDamageResults[1][i];
 		//some damage like sonic boom acts a bit weird.
 		damage = result.damage[0] ? result.damage[0] : result.damage;
 		lowestRoll = damage * p2.moves[i].hits / p1.stats.hp * 100;
@@ -290,10 +305,10 @@ $(document).ready(function () {
 		if (window.NO_CALC) {
 			return;
 		}
-		if (document.getElementById("cc-auto-refr").checked) {
-			window.refreshColorCode();
-		}
 		performCalculations();
+		if (typeof window.maybeAutoRefreshColorCode === "function") {
+			window.maybeAutoRefreshColorCode();
+		}
 	});
 	performCalculations();
 });
