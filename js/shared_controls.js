@@ -156,6 +156,16 @@ $(".sp .dvs").keyup(function () {
 	poke.find(".hp .dvs").val(getHPDVs(poke));
 	calcHP(poke);
 });
+$(".stat-changer").on("click", function (ev) {
+	ev.preventDefault();
+	var boostSelector = $(this).closest("tr").find(".boost");
+	if (!boostSelector.length) return;
+	var currentBoost = parseInt(boostSelector.val(), 10);
+	if (Number.isNaN(currentBoost)) currentBoost = 0;
+	var delta = $(this).text().trim() === "+" ? 1 : -1;
+	var nextBoost = Math.max(-6, Math.min(6, currentBoost + delta));
+	boostSelector.val(String(nextBoost)).change();
+});
 $(".sl .dvs").keyup(function () {
 	var poke = $(this).closest(".poke-info");
 	calcStat(poke, 'sl');
@@ -1709,6 +1719,29 @@ function resetTrainer() {
 
 }
 
+var CC_AUTO_REFRESH_STORAGE_KEY = "pklucid_cc_auto_refresh";
+
+function saveAutoRefreshColorCodeSetting() {
+	var autoRefresh = document.getElementById("cc-auto-refr");
+	if (!autoRefresh) {
+		return;
+	}
+	localStorage.setItem(CC_AUTO_REFRESH_STORAGE_KEY, autoRefresh.checked ? "true" : "false");
+}
+
+function restoreAutoRefreshColorCodeSetting() {
+	var autoRefresh = document.getElementById("cc-auto-refr");
+	if (!autoRefresh) {
+		return;
+	}
+	var storedValue = localStorage.getItem(CC_AUTO_REFRESH_STORAGE_KEY);
+	if (storedValue === "true") {
+		autoRefresh.checked = true;
+	} else if (storedValue === "false") {
+		autoRefresh.checked = false;
+	}
+}
+
 
 function HideShowCCSettings(){
 	$('#show-cc')[0].toggleAttribute("hidden");
@@ -1765,7 +1798,6 @@ function hideColorCodes(){
 	for (let i = 0; i < pMons.length; i++) {
 		pMons[i].className = "trainer-pok left-side";
 	}
-	document.getElementById("cc-auto-refr").checked = false;
 	HideShowCCSettings();
 }
 
@@ -2003,8 +2035,13 @@ $(document).ready(function () {
 	applyTeamBoxSearchFilter();
 	$('#cc-spe-border').change(SpeedBorderSetsChange);
 	$('#cc-ohko-color').change(ColorCodeSetsChange);
+	$('#cc-auto-refr').change(function () {
+		saveAutoRefreshColorCodeSetting();
+		maybeAutoRefreshColorCode();
+	});
 	$('#cc-spe-border')[0].checked=true;
 	$('#cc-ohko-color')[0].checked=true;
+	restoreAutoRefreshColorCodeSetting();
 	$('#singles-format').click(switchIconDouble);
 	$('#doubles-format').click(switchIconSingle);
 	for (let dropzone of document.getElementsByClassName("dropzone")){

@@ -68,6 +68,73 @@ $("#exportR").click(function () {
 	ExportPokemon($("#p2"));
 });
 
+$("#saveL").click(function (ev) {
+	ev.preventDefault();
+	SavePokemonSet($("#p1"));
+});
+
+function SavePokemonSet(pokeInfo) {
+	if (!pokeInfo || !pokeInfo.length) return;
+
+	var pokemon = createPokemon(pokeInfo);
+	if (!pokemon || !pokemon.name) return;
+
+	var currentSelection = pokeInfo.find("input.set-selector").val() || "";
+	var defaultSetName = "Custom Set";
+	if (currentSelection.indexOf("(") !== -1 && currentSelection.lastIndexOf(")") > currentSelection.indexOf("(")) {
+		defaultSetName = currentSelection.substring(currentSelection.indexOf("(") + 1, currentSelection.lastIndexOf(")"));
+		if (defaultSetName === "Blank Set") defaultSetName = "Custom Set";
+	}
+
+	var importNameInput = document.getElementsByClassName("import-name-text")[0];
+	var setName = importNameInput && importNameInput.value ? importNameInput.value.trim() : "";
+	if (!setName) setName = defaultSetName;
+
+	var savedSet = {
+		name: pokemon.name,
+		nameProp: setName,
+		level: pokemon.level,
+		ability: pokemon.ability,
+		item: pokemon.item,
+		nature: pokemon.nature,
+		evs: {},
+		ivs: {},
+		moves: [],
+		isCustomSet: true
+	};
+
+	if (typeof pokemon.teraType !== "undefined") {
+		savedSet.teraType = pokemon.teraType;
+	}
+
+	var statKeys = ["hp", "atk", "def", "spa", "spd", "spe", "spc"];
+	for (var i = 0; i < statKeys.length; i++) {
+		var stat = statKeys[i];
+		var legacyStat = statToLegacyStat(stat);
+		if (!legacyStat) continue;
+		if (pokemon.evs && typeof pokemon.evs[stat] !== "undefined") {
+			savedSet.evs[legacyStat] = pokemon.evs[stat];
+		}
+		if (pokemon.ivs && typeof pokemon.ivs[stat] !== "undefined") {
+			savedSet.ivs[legacyStat] = pokemon.ivs[stat];
+		}
+	}
+
+	for (var m = 0; m < pokemon.moves.length; m++) {
+		var move = pokemon.moves[m];
+		if (move && move.name && move.name !== "(No Move)") {
+			savedSet.moves.push(move.name);
+		}
+	}
+
+	addToDex(savedSet);
+	$(allPokemon("#importedSetsOptions")).css("display", "inline");
+
+	var savedSetId = savedSet.name + " (" + savedSet.nameProp + ")";
+	pokeInfo.find(".set-selector").val(savedSetId).change();
+	pokeInfo.find(".select2-chosen").first().text(savedSetId);
+}
+
 function serialize(array, separator) {
 	var text = "";
 	for (var i = 0; i < array.length; i++) {
@@ -104,6 +171,8 @@ function statToLegacyStat(stat) {
 		return "sd";
 	case 'spe':
 		return "sp";
+	case 'spc':
+		return "sl";
 	}
 }
 
@@ -338,9 +407,17 @@ function checkExeptions(poke) {
 	case 'Pikachu-Rock-Star':
 		poke = "Pikachu";
 		break;
-	case 'Vivillon-Fancy':
-	case 'Vivillon-Pokeball':
-		poke = "Vivillon";
+	case 'Vivillon-High Plains':
+	case 'Vivillon-Highplains':
+		poke = "Vivillon-High-Plains";
+		break;
+	case 'Vivillon-Icy Snow':
+	case 'Vivillon-Icysnow':
+		poke = "Vivillon-Icy-Snow";
+		break;
+	case 'Vivillon-Poke Ball':
+	case 'Vivillon-PokeBall':
+		poke = "Vivillon-Pokeball";
 		break;
 	case 'Florges-White':
 	case 'Florges-Blue':
@@ -383,9 +460,23 @@ $(document).ready(function () {
 	if (localStorage.customsets) {
 		customSets = JSON.parse(localStorage.customsets);
 		updateDex(customSets);
-		selectFirstMon();
+		var restoredSelection = false;
+		if (typeof restoreLastEncounterSelection === "function") {
+			restoredSelection = !!restoreLastEncounterSelection();
+		}
+		if (!restoredSelection) {
+			var activePlayerSet = typeof getSelectedSetIdForSide === "function"
+				? getSelectedSetIdForSide("p1")
+				: String($(".player").val() || "").trim();
+			if (!activePlayerSet) {
+				selectFirstMon();
+			}
+		}
+		if (typeof saveLastEncounterSelection === "function") {
+			saveLastEncounterSelection();
+		}
 		$(allPokemon("#importedSetsOptions")).css("display", "inline");
-	} else {
+	} else if (!$(".set-selector").first().data("select2")) {
 		loadDefaultLists();
 	}
 	//adjust the side buttons that collapse the data wished to be hidden

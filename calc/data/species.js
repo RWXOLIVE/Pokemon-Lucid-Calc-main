@@ -4063,7 +4063,40 @@ var BW_PATCH = {
         bs: { hp: 60, at: 60, df: 50, sa: 40, sd: 50, sp: 75 },
         weightkg: 19.5,
         nfe: true,
-        abilities: { 0: 'Chlorophyll' }
+        abilities: { 0: 'Chlorophyll' },
+        otherFormes: ['Deerling-Spring', 'Deerling-Summer', 'Deerling-Autumn', 'Deerling-Winter']
+    },
+    'Deerling-Spring': {
+        types: ['Normal', 'Grass'],
+        bs: { hp: 60, at: 60, df: 50, sa: 40, sd: 50, sp: 75 },
+        weightkg: 19.5,
+        nfe: true,
+        abilities: { 0: 'Chlorophyll' },
+        baseSpecies: 'Deerling'
+    },
+    'Deerling-Summer': {
+        types: ['Normal', 'Grass'],
+        bs: { hp: 60, at: 60, df: 50, sa: 40, sd: 50, sp: 75 },
+        weightkg: 19.5,
+        nfe: true,
+        abilities: { 0: 'Chlorophyll' },
+        baseSpecies: 'Deerling'
+    },
+    'Deerling-Autumn': {
+        types: ['Normal', 'Grass'],
+        bs: { hp: 60, at: 60, df: 50, sa: 40, sd: 50, sp: 75 },
+        weightkg: 19.5,
+        nfe: true,
+        abilities: { 0: 'Chlorophyll' },
+        baseSpecies: 'Deerling'
+    },
+    'Deerling-Winter': {
+        types: ['Normal', 'Grass'],
+        bs: { hp: 60, at: 60, df: 50, sa: 40, sd: 50, sp: 75 },
+        weightkg: 19.5,
+        nfe: true,
+        abilities: { 0: 'Chlorophyll' },
+        baseSpecies: 'Deerling'
     },
     Deino: {
         types: ['Dark', 'Dragon'],
@@ -4691,7 +4724,36 @@ var BW_PATCH = {
         types: ['Normal', 'Grass'],
         bs: { hp: 80, at: 100, df: 70, sa: 60, sd: 70, sp: 95 },
         weightkg: 92.5,
-        abilities: { 0: 'Chlorophyll' }
+        abilities: { 0: 'Chlorophyll' },
+        otherFormes: ['Sawsbuck-Spring', 'Sawsbuck-Summer', 'Sawsbuck-Autumn', 'Sawsbuck-Winter']
+    },
+    'Sawsbuck-Spring': {
+        types: ['Normal', 'Grass'],
+        bs: { hp: 80, at: 100, df: 70, sa: 60, sd: 70, sp: 95 },
+        weightkg: 92.5,
+        abilities: { 0: 'Chlorophyll' },
+        baseSpecies: 'Sawsbuck'
+    },
+    'Sawsbuck-Summer': {
+        types: ['Normal', 'Grass'],
+        bs: { hp: 80, at: 100, df: 70, sa: 60, sd: 70, sp: 95 },
+        weightkg: 92.5,
+        abilities: { 0: 'Chlorophyll' },
+        baseSpecies: 'Sawsbuck'
+    },
+    'Sawsbuck-Autumn': {
+        types: ['Normal', 'Grass'],
+        bs: { hp: 80, at: 100, df: 70, sa: 60, sd: 70, sp: 95 },
+        weightkg: 92.5,
+        abilities: { 0: 'Chlorophyll' },
+        baseSpecies: 'Sawsbuck'
+    },
+    'Sawsbuck-Winter': {
+        types: ['Normal', 'Grass'],
+        bs: { hp: 80, at: 100, df: 70, sa: 60, sd: 70, sp: 95 },
+        weightkg: 92.5,
+        abilities: { 0: 'Chlorophyll' },
+        baseSpecies: 'Sawsbuck'
     },
     Scolipede: {
         types: ['Bug', 'Poison'],
@@ -6146,7 +6208,139 @@ var XY_PATCH = {
         bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
         weightkg: 17,
         abilities: { 0: 'Shield Dust' },
-        otherFormes: ['Vivillon-Fancy', 'Vivillon-Pokeball']
+        otherFormes: [
+            'Vivillon-Archipelago', 'Vivillon-Continental', 'Vivillon-Elegant', 'Vivillon-Fancy',
+            'Vivillon-Garden', 'Vivillon-High-Plains', 'Vivillon-Icy-Snow', 'Vivillon-Jungle',
+            'Vivillon-Marine', 'Vivillon-Meadow', 'Vivillon-Modern', 'Vivillon-Monsoon',
+            'Vivillon-Ocean', 'Vivillon-Pokeball', 'Vivillon-Polar', 'Vivillon-River',
+            'Vivillon-Sandstorm', 'Vivillon-Savanna', 'Vivillon-Sun', 'Vivillon-Tundra'
+        ]
+    },
+    'Vivillon-Archipelago': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-Continental': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-Elegant': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-Garden': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-High-Plains': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-Icy-Snow': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-Jungle': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-Marine': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-Meadow': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-Modern': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-Monsoon': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-Ocean': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-Polar': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-River': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-Sandstorm': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-Savanna': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-Sun': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
+    },
+    'Vivillon-Tundra': {
+        types: ['Bug', 'Flying'],
+        bs: { hp: 80, at: 52, df: 50, sa: 90, sd: 50, sp: 89 },
+        weightkg: 17,
+        abilities: { 0: 'Shield Dust' },
+        baseSpecies: 'Vivillon'
     },
     'Vivillon-Fancy': {
         types: ['Bug', 'Flying'],
