@@ -25,8 +25,18 @@ for (var i = 0; i < 4; i++) {
 var damageResults;
 function getDisplayedSpeeds(p1, p2, field) {
 	var generation = calc.Generations.get(gen);
+
 	var p1Speed = calc.getModifiedStat(p1.rawStats.spe, p1.boosts.spe, generation);
 	var p2Speed = calc.getModifiedStat(p2.rawStats.spe, p2.boosts.spe, generation);
+
+	if (p1.status === "par" && p1.ability !== "Quick Feet") {
+	p1Speed = Math.floor(p1Speed * 0.25);
+}
+
+if (p2.status === "par" && p2.ability !== "Quick Feet") {
+	p2Speed = Math.floor(p2Speed * 0.25);
+}
+
 	return [p1Speed, p2Speed];
 }
 
