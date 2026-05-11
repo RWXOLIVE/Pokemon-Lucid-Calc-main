@@ -707,3 +707,13 @@ table.field {
     background: var(--fieldset-color);
     color: unset;
 }
+
+.poke-info .item-ignore-toggle-label {
+    width: auto;
+    margin-left: 0.45em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+    font-size: 0.85em;
+    white-space: nowrap;
+}

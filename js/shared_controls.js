@@ -814,6 +814,12 @@ function correctHiddenPower(pokemon) {
 	return pokemon;
 }
 
+
+function getEffectiveItem(pokeInfo) {
+	var item = pokeInfo.find(".item").val();
+	return pokeInfo.find(".ignore-item-toggle").prop("checked") ? "" : item;
+}
+
 function createPokemon(pokeInfo) {
 	if (typeof pokeInfo === "string") { // in this case, pokeInfo is the id of an individual setOptions value whose moveset's tier matches the selected tier(s)
 		var name = pokeInfo.substring(0, pokeInfo.indexOf(" ("));
@@ -889,7 +895,7 @@ function createPokemon(pokeInfo) {
 		if (gen === 1) baseStats.spd = baseStats.spa;
 
 		var ability = pokeInfo.find(".ability").val();
-		var item = pokeInfo.find(".item").val();
+		var item = getEffectiveItem(pokeInfo);
 		var isDynamaxed = pokeInfo.find(".max").prop("checked");
 		var teraType = pokeInfo.find(".teraToggle").is(":checked") ? pokeInfo.find(".teraType").val() : undefined;
 		pokeInfo.isDynamaxed = isDynamaxed;
@@ -1300,7 +1306,7 @@ function isPokeInfoGrounded(pokeInfo) {
 		teraType ? teraType !== "Flying" : pokeInfo.find(".type1").val() !== "Flying" &&
 			teraType ? teraType !== "Flying" : pokeInfo.find(".type2").val() !== "Flying" &&
 			pokeInfo.find(".ability").val() !== "Levitate" &&
-		pokeInfo.find(".item").val() !== "Air Balloon"
+		getEffectiveItem(pokeInfo) !== "Air Balloon"
 	);
 }
 
@@ -1313,6 +1319,7 @@ function getTerrainEffects() {
 		case "teraType":
 		case "teraToggle":
 		case "item":
+		case "ignore-item-toggle":
 			var id = $(this).closest(".poke-info").prop("id");
 			var terrainValue = $("input:checkbox[name='terrain']:checked").val();
 			if (terrainValue === "Electric") {
