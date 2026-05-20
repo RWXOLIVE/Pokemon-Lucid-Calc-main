@@ -42,6 +42,7 @@ function performCalculations() {
 	var speedP2 = p2.clone();
 	checkStatBoost(speedP1, speedP2);
 	var displaySpeeds = getDisplayedSpeeds(speedP1, speedP2, p1field);
+	updateMovePpAccDisplays(p1, p2, p1field, displaySpeeds);
 
 	damageResults = calculateAllMoves(gen, p1, p1field, p2, p2field);
 	p1 = damageResults[0][0].attacker;
@@ -51,6 +52,7 @@ function performCalculations() {
 	p2.maxDamages = [];
 	p1info.find(".sp .totalMod").text(displaySpeeds[0]);
 	p2info.find(".sp .totalMod").text(displaySpeeds[1]);
+	updateSpeedPngIndicators(displaySpeeds);
 	var fastestSide = displaySpeeds[0] > displaySpeeds[1] ? 0 : displaySpeeds[0] === displaySpeeds[1] ? "tie" : 1;
 
 	var result, maxDamage;

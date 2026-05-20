@@ -375,6 +375,152 @@ $(".status").bind("keyup change", function () {
 });
 
 var lockerMove = "";
+var SPEED_ICON_PATHS = {
+	faster: "./img/speed-faster.png",
+	slower: "./img/speed-slower.png",
+	tie: "./img/speed-tie.png"
+};
+
+function ensureMoveDataRows() {
+	$(".i-f-move, .i-f-o-move").each(function () {
+		var row = $(this);
+		if (!row.children(".move-data-row").length) {
+			row.append('<div class="move-data-row">PP -- | ACC --</div>');
+		}
+	});
+}
+
+function getMoveMeta(moveName) {
+	if (!moveName || typeof moveName !== "string" || typeof calc === "undefined") return null;
+	var moveMeta = window.MOVE_PP_ACC;
+	if (!moveMeta) return null;
+	var moveID = calc.toID(moveName);
+	var meta = moveMeta[moveID];
+	if (!meta && moveID.indexOf("hiddenpower") === 0) {
+		meta = moveMeta.hiddenpower;
+	}
+	return meta || null;
+}
+
+function applyWeatherAccuracyAdjustments(moveName, baseAccuracy, field) {
+	if (!moveName || baseAccuracy === true || !field || typeof field.hasWeather !== "function") return baseAccuracy;
+	var moveID = calc.toID(moveName);
+	if (moveID === "thunder" || moveID === "hurricane") {
+		if (field.hasWeather("Rain", "Heavy Rain")) return true;
+		if (field.hasWeather("Sun", "Harsh Sunshine")) return 50;
+	}
+	if (moveID === "blizzard" && field.hasWeather("Hail", "Snow")) {
+		return true;
+	}
+	return baseAccuracy;
+}
+
+function getDynamicMoveAccuracy(moveName, move, attacker, defender, field, attackerSpeed, defenderSpeed) {
+	if (!moveName || moveName === "(No Move)") return null;
+	var meta = getMoveMeta(moveName);
+	var baseAccuracy = meta ? meta.accuracy : undefined;
+	var fallbackMove = move || (moves && moves[moveName] ? moves[moveName] : null);
+	if (move && move.isZ && move.category !== "Status") return true;
+	if (baseAccuracy === true) return true;
+	if (typeof baseAccuracy !== "number") {
+		if (fallbackMove && fallbackMove.category === "Status") return true;
+		if (!fallbackMove) return null;
+		baseAccuracy = 100;
+	}
+	baseAccuracy = applyWeatherAccuracyAdjustments(moveName, baseAccuracy, field);
+	if (baseAccuracy === true) return true;
+	if (!attacker || !defender) return baseAccuracy;
+	if (attacker.hasAbility("No Guard") || defender.hasAbility("No Guard")) return true;
+	if (calc.toID(moveName) === "toxic" && gen >= 6 && attacker.hasType("Poison")) return true;
+
+	var accuracy = baseAccuracy;
+	var modifier = 1;
+	if (field && field.isGravity) modifier *= (5 / 3);
+	if (attacker.hasAbility("Compound Eyes")) modifier *= 1.3;
+	if (attacker.hasAbility("Victory Star")) modifier *= 1.1;
+	if (attacker.hasAbility("Hustle") && move && move.category === "Physical") modifier *= 0.8;
+	if (attacker.hasItem("Wide Lens")) modifier *= 1.1;
+	if (typeof attackerSpeed === "number" && typeof defenderSpeed === "number" &&
+		attackerSpeed < defenderSpeed && attacker.hasItem("Zoom Lens")) {
+		modifier *= 1.2;
+	}
+	if (defender.hasItem("Bright Powder", "Lax Incense")) modifier *= 0.9;
+	if (defender.hasAbility("Sand Veil") && field && field.hasWeather("Sand")) modifier *= 0.8;
+	if (defender.hasAbility("Snow Cloak") && field && field.hasWeather("Hail", "Snow")) modifier *= 0.8;
+
+	accuracy *= modifier;
+	if (defender.hasAbility("Wonder Skin") && move && move.category === "Status" && accuracy > 50) {
+		accuracy = 50;
+	}
+	return Math.max(0, accuracy);
+}
+
+function formatMoveAccuracyValue(accuracy) {
+	if (accuracy === true || typeof accuracy !== "number" || !isFinite(accuracy)) return "--";
+	var rounded = Math.round(accuracy * 10) / 10;
+	return (rounded % 1 === 0 ? rounded.toFixed(0) : rounded.toFixed(1)) + "%";
+}
+
+function updateMoveDataForSide(pokeInfo, attacker, defender, field, attackerSpeed, defenderSpeed) {
+	if (!pokeInfo || !pokeInfo.length) return;
+	for (var i = 0; i < 4; i++) {
+		var moveRow = pokeInfo.find(".move" + (i + 1));
+		var moveName = moveRow.find(".move-selector").val();
+		var move = attacker && attacker.moves && attacker.moves[i] ? attacker.moves[i] : null;
+		var lookupName = move && move.originalName ? move.originalName : moveName;
+		var meta = getMoveMeta(lookupName);
+		var ppText = meta && typeof meta.pp === "number" ? meta.pp : "--";
+		var accuracy = getDynamicMoveAccuracy(lookupName, move, attacker, defender, field, attackerSpeed, defenderSpeed);
+		moveRow.children(".move-data-row").text("PP " + ppText + " | ACC " + formatMoveAccuracyValue(accuracy));
+	}
+}
+
+function updateMovePpAccDisplays(p1, p2, field, displaySpeeds) {
+	ensureMoveDataRows();
+	var p1Speed = Array.isArray(displaySpeeds) ? displaySpeeds[0] : undefined;
+	var p2Speed = Array.isArray(displaySpeeds) ? displaySpeeds[1] : undefined;
+	updateMoveDataForSide($("#p1"), p1, p2, field, p1Speed, p2Speed);
+	updateMoveDataForSide($("#p2"), p2, p1, field, p2Speed, p1Speed);
+}
+
+function setSpeedPngIndicator(pokeInfo, speedState) {
+	if (!pokeInfo || !pokeInfo.length) return;
+	var cell = pokeInfo.find(".sp .totalMod").parent();
+	if (!cell.length) return;
+	var indicator = cell.find(".speed-indicator");
+	if (!indicator.length) {
+		indicator = $('<img class="speed-indicator speed-indicator-hidden" alt="" aria-hidden="true" />');
+		cell.append(indicator);
+	}
+	if (!speedState || !SPEED_ICON_PATHS[speedState]) {
+		indicator.attr("src", "").addClass("speed-indicator-hidden");
+		return;
+	}
+	indicator
+		.attr("src", SPEED_ICON_PATHS[speedState])
+		.removeClass("speed-indicator-hidden");
+}
+
+function updateSpeedPngIndicators(displaySpeeds) {
+	var p1info = $("#p1");
+	var p2info = $("#p2");
+	if (!Array.isArray(displaySpeeds) || displaySpeeds.length < 2) {
+		setSpeedPngIndicator(p1info, null);
+		setSpeedPngIndicator(p2info, null);
+		return;
+	}
+	if (displaySpeeds[0] > displaySpeeds[1]) {
+		setSpeedPngIndicator(p1info, "faster");
+		setSpeedPngIndicator(p2info, "slower");
+	} else if (displaySpeeds[0] < displaySpeeds[1]) {
+		setSpeedPngIndicator(p1info, "slower");
+		setSpeedPngIndicator(p2info, "faster");
+	} else {
+		setSpeedPngIndicator(p1info, "tie");
+		setSpeedPngIndicator(p2info, "tie");
+	}
+}
+
 // auto-update move details on select
 $(".move-selector").change(function () {
 	var moveName = $(this).val();
@@ -445,6 +591,7 @@ $(".move-selector").change(function () {
 		moveGroupObj.children(".stat-drops").hide();
 	}
 	moveGroupObj.children(".move-z").prop("checked", false);
+	updateMovePpAccDisplays();
 });
 
 $(".item").change(function () {
@@ -455,6 +602,7 @@ $(".item").change(function () {
 	} else {
 		$metronomeControl.hide();
 	}
+	updateMovePpAccDisplays();
 });
 
 function smogonAnalysis(pokemonName) {
@@ -2020,6 +2168,7 @@ $(document).ready(function () {
 	$("#singles-format").prop("checked", true);
 	$("#singles-format").change();
 	loadDefaultLists();
+	ensureMoveDataRows();
 	$(".move-selector").select2({
 		dropdownAutoWidth: true,
 		matcher: function (term, text) {
@@ -2029,6 +2178,7 @@ $(document).ready(function () {
 	});
 	$(".set-selector").val(getFirstValidSetOption().id);
 	$(".set-selector").change();
+	updateMovePpAccDisplays();
 	$(".terrain-trigger").bind("change keyup", getTerrainEffects);
 	$("#previous-trainer").click(previousTrainer);
 	$("#next-trainer").click(nextTrainer);

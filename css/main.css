@@ -412,6 +412,11 @@ select.toxic-counter {
 .move-hits {
     width: 4.5em;
 }
+.move-data-row {
+    font-size: 0.72em;
+    line-height: 1.1;
+    margin: 2px 0 4px 4px;
+}
 .poke-info .crit-btn {
     font-size: 0.8em;
     width: 2.5em;
@@ -448,7 +453,21 @@ select.toxic-counter {
     margin: 0 2px;
 }
 .poke-info tr.sp td:last-child {
+    position: relative;
     padding-left: 8px;
+    padding-right: 20px;
+}
+.speed-indicator {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    transform: translateY(-50%);
+}
+.speed-indicator-hidden {
+    display: none;
 }
 .poke-info .max-btn {
 	font-size: 0.8em;
