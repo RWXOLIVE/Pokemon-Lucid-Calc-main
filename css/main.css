@@ -374,8 +374,15 @@ th {
     display: inline-block;
     width: 5em;
 }
+.top label.cap-label {
+    width: auto;
+    margin-left: 0.4em;
+}
 .poke-info input:not([type]), .poke-info input[type="text"], .poke-info span {
     display: inline-block;
+    width: 2.5em;
+}
+.poke-info input.level-cap {
     width: 2.5em;
 }
 .poke-info input[type="number"] {

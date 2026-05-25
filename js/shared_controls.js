@@ -68,6 +68,7 @@ function legacyStatToStat(st) {
 // input field validation
 var bounds = {
 	"level": [0, 100],
+	"level-cap": [1, 100],
 	"base": [1, 255],
 	"evs": [0, 252],
 	"ivs": [0, 31],
@@ -86,6 +87,46 @@ function validate(obj, min, max) {
 	obj.val(Math.max(min, Math.min(max, ~~obj.val())));
 }
 
+function parseInteger(value, fallback) {
+	var parsed = parseInt(value, 10);
+	return isNaN(parsed) ? fallback : parsed;
+}
+
+function clampLevel(level) {
+	return Math.max(1, Math.min(100, level));
+}
+
+function getLevelCap() {
+	var capInput = $("#p1 .level-cap").first();
+	if (!capInput.length) capInput = $(".level-cap").first();
+	if (!capInput.length) return 100;
+	return clampLevel(parseInteger(capInput.val(), 100));
+}
+
+function resolveSetLevel(rawLevel) {
+	var level = parseInteger(rawLevel, 100);
+	if (level <= 0) level = getLevelCap() + level;
+	return clampLevel(level);
+}
+
+function setManualLevel(poke, level) {
+	poke.removeData("setLevelRaw");
+	poke.find(".level").val(clampLevel(parseInteger(level, 100)));
+}
+
+function setSetLevel(poke, rawLevel) {
+	var normalizedRaw = parseInteger(rawLevel, 100);
+	poke.data("setLevelRaw", normalizedRaw);
+	poke.find(".level").val(resolveSetLevel(normalizedRaw));
+}
+
+function refreshLevelFromCap(poke) {
+	var rawLevel = poke.data("setLevelRaw");
+	if (typeof rawLevel === "number" && rawLevel <= 0) {
+		poke.find(".level").val(resolveSetLevel(rawLevel));
+	}
+}
+
 $("input:radio[name='format']").change(function () {
 	var gameType = $("input:radio[name='format']:checked").val();
 	if (gameType === 'Singles') {
@@ -101,10 +142,19 @@ $("input:radio[name='format']").change(function () {
 });
 
 // auto-calc stats and current HP on change
-$(".level").keyup(function () {
+$(".level").bind("keyup change", function () {
 	var poke = $(this).closest(".poke-info");
+	poke.removeData("setLevelRaw");
 	calcHP(poke);
 	calcStats(poke);
+});
+$(".level-cap").bind("keyup change", function () {
+	$(".poke-info").each(function () {
+		var poke = $(this);
+		refreshLevelFromCap(poke);
+		calcHP(poke);
+		calcStats(poke);
+	});
 });
 $(".nature").bind("keyup change", function () {
 	calcStats($(this).closest(".poke-info"));
@@ -723,7 +773,7 @@ $(".set-selector").change(function () {
 			if (regSets) {
 				pokeObj.find(".teraType").val(set.teraType || pokemon.types[0]);
 			}
-			pokeObj.find(".level").val(set.level);
+			setSetLevel(pokeObj, set.level);
 			pokeObj.find(".hp .evs").val((set.evs && set.evs.hp !== undefined) ? set.evs.hp : 0);
 			pokeObj.find(".hp .ivs").val((set.ivs && set.ivs.hp !== undefined) ? set.ivs.hp : 31);
 			pokeObj.find(".hp .dvs").val((set.dvs && set.dvs.hp !== undefined) ? set.dvs.hp : 15);
@@ -773,7 +823,7 @@ $(".set-selector").change(function () {
 			}
 		} else {
 			pokeObj.find(".teraType").val(pokemon.types[0]);
-			pokeObj.find(".level").val(100);
+			setManualLevel(pokeObj, 100);
 			pokeObj.find(".hp .evs").val(0);
 			pokeObj.find(".hp .ivs").val(31);
 			pokeObj.find(".hp .dvs").val(15);
@@ -799,8 +849,8 @@ $(".set-selector").change(function () {
 			var format = getSelectedTiers()[0];
 			var is50lvl = startsWith(format, "VGC") || startsWith(format, "Battle Spot");
 			//var isDoubles = format === 'Doubles' || has50lvl; *TODO*
-			if (format === "LC") pokeObj.find(".level").val(5);
-			if (is50lvl) pokeObj.find(".level").val(50);
+			if (format === "LC") setManualLevel(pokeObj, 5);
+			if (is50lvl) setManualLevel(pokeObj, 50);
 			//if (isDoubles) field.gameType = 'Doubles'; *TODO*
 		}
 		var formeObj = $(this).siblings().find(".forme").parent();
@@ -1009,7 +1059,7 @@ function createPokemon(pokeInfo) {
 		}
 
 		return new calc.Pokemon(gen, name, {
-			level: set.level,
+			level: resolveSetLevel(set.level),
 			ability: set.ability,
 			abilityOn: true,
 			item: set.item && typeof set.item !== "undefined" && (set.item === "Eviolite" || set.item.indexOf("ite") < 0) ? set.item : "",

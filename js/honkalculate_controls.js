@@ -287,7 +287,9 @@ $(".tiers input").change(function () {
 });
 
 function setLevel(lvl) {
-	$('.level').val(lvl);
+	$('.poke-info').each(function () {
+		setManualLevel($(this), lvl);
+	});
 	$('.level').keyup();
 	$('.level').popover({
 		content: "Level has been set to " + lvl,
