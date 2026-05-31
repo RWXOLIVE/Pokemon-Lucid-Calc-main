@@ -381,6 +381,9 @@ function addSets(pokes, name) {
 }
 
 function checkExeptions(poke) {
+	if (/^Alcremie-(?!Gmax$)/.test(poke)) {
+		return "Alcremie";
+	}
 	switch (poke) {
 	case 'Aegislash':
 		poke = "Aegislash-Blade";
