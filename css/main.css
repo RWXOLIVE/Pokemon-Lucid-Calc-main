@@ -262,6 +262,10 @@ th {
 .btn-wide {
     width: 7em;
 }
+.btn-room-toggle {
+    width: 7.2em;
+    white-space: nowrap;
+}
 .btn-xwide {
     width: 8em;
 }

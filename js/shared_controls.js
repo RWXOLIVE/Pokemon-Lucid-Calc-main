@@ -551,7 +551,20 @@ function setSpeedPngIndicator(pokeInfo, speedState) {
 		.removeClass("speed-indicator-hidden");
 }
 
-function updateSpeedPngIndicators(displaySpeeds) {
+function isTrickRoomActive(field) {
+	if (field && typeof field.isTrickRoom === "boolean") return field.isTrickRoom;
+	return $("#trickroom").prop("checked");
+}
+
+function compareDisplayedSpeeds(displaySpeeds, field) {
+	if (!Array.isArray(displaySpeeds) || displaySpeeds.length < 2) return 0;
+	if (displaySpeeds[0] === displaySpeeds[1]) return 0;
+	var trickRoom = isTrickRoomActive(field);
+	if (trickRoom) return displaySpeeds[0] < displaySpeeds[1] ? 1 : -1;
+	return displaySpeeds[0] > displaySpeeds[1] ? 1 : -1;
+}
+
+function updateSpeedPngIndicators(displaySpeeds, field) {
 	var p1info = $("#p1");
 	var p2info = $("#p2");
 	if (!Array.isArray(displaySpeeds) || displaySpeeds.length < 2) {
@@ -559,10 +572,11 @@ function updateSpeedPngIndicators(displaySpeeds) {
 		setSpeedPngIndicator(p2info, null);
 		return;
 	}
-	if (displaySpeeds[0] > displaySpeeds[1]) {
+	var speedCmp = compareDisplayedSpeeds(displaySpeeds, field);
+	if (speedCmp > 0) {
 		setSpeedPngIndicator(p1info, "faster");
 		setSpeedPngIndicator(p2info, "slower");
-	} else if (displaySpeeds[0] < displaySpeeds[1]) {
+	} else if (speedCmp < 0) {
 		setSpeedPngIndicator(p1info, "slower");
 		setSpeedPngIndicator(p2info, "faster");
 	} else {

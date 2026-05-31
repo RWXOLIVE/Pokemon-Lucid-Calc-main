@@ -52,8 +52,9 @@ function performCalculations() {
 	p2.maxDamages = [];
 	p1info.find(".sp .totalMod").text(displaySpeeds[0]);
 	p2info.find(".sp .totalMod").text(displaySpeeds[1]);
-	updateSpeedPngIndicators(displaySpeeds);
-	var fastestSide = displaySpeeds[0] > displaySpeeds[1] ? 0 : displaySpeeds[0] === displaySpeeds[1] ? "tie" : 1;
+	updateSpeedPngIndicators(displaySpeeds, p1field);
+	var speedCmp = compareDisplayedSpeeds(displaySpeeds, p1field);
+	var fastestSide = speedCmp > 0 ? 0 : speedCmp === 0 ? "tie" : 1;
 
 	var result, maxDamage;
 	var bestResult;
@@ -130,10 +131,9 @@ function calculationsColors(p1info, p2) {
 	p2 = colorDamageResults[1][0].attacker;
 	p1.maxDamages = [];
 	p2.maxDamages = [];
-	var p1s = displaySpeeds[0];
-	var p2s = displaySpeeds[1];
 	//Faster Tied Slower
-	var fastest = p1s > p2s ? "F" : p1s < p2s ? "S" : p1s === p2s ? "T" : undefined;
+	var speedCmp = compareDisplayedSpeeds(displaySpeeds, p1field);
+	var fastest = speedCmp > 0 ? "F" : speedCmp < 0 ? "S" : "T";
 	var result, highestRoll, lowestRoll, damage = 0;
 	//goes from the most optimist to the least optimist
 	var p1KO = 0, p2KO = 0;
