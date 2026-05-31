@@ -36,6 +36,7 @@ export declare namespace State {
         weather?: I.Weather;
         terrain?: I.Terrain;
         isMagicRoom?: boolean;
+        isTrickRoom?: boolean;
         isWonderRoom?: boolean;
         isGravity?: boolean;
         isInverse?: boolean;

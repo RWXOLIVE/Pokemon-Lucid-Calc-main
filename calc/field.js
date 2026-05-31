@@ -24,6 +24,7 @@ var Field = (function () {
         this.terrain = field.terrain;
         this.weather = field.weather;
         this.isMagicRoom = !!field.isMagicRoom;
+        this.isTrickRoom = !!field.isTrickRoom;
         this.isWonderRoom = !!field.isWonderRoom;
         this.isGravity = !!field.isGravity;
         this.isInverse = !!field.isInverse;
@@ -62,6 +63,7 @@ var Field = (function () {
             weather: this.weather,
             terrain: this.terrain,
             isMagicRoom: this.isMagicRoom,
+            isTrickRoom: this.isTrickRoom,
             isWonderRoom: this.isWonderRoom,
             isGravity: this.isGravity,
             isInverse: this.isInverse,

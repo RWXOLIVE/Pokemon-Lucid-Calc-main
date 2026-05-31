@@ -1164,6 +1164,7 @@ function createField() {
 	var isSwordOfRuin = $("#sword").prop("checked");
 	var isVesselOfRuin = $("#vessel").prop("checked");
 	var isMagicRoom = $("#magicroom").prop("checked");
+	var isTrickRoom = $("#trickroom").prop("checked");
 	var isWonderRoom = $("#wonderroom").prop("checked");
 	var isGravity = $("#gravity").prop("checked");
 	var isInverse = $("#inverse").prop("checked");
@@ -1210,7 +1211,7 @@ function createField() {
 	};
 	return new calc.Field({
 		gameType: gameType, weather: weather, terrain: terrain,
-		isMagicRoom: isMagicRoom, isWonderRoom: isWonderRoom, isGravity: isGravity, isInverse: isInverse,
+		isMagicRoom: isMagicRoom, isTrickRoom: isTrickRoom, isWonderRoom: isWonderRoom, isGravity: isGravity, isInverse: isInverse,
 		isBeadsOfRuin: isBeadsOfRuin, isTabletsOfRuin: isTabletsOfRuin,
 		isSwordOfRuin: isSwordOfRuin, isVesselOfRuin: isVesselOfRuin,
 		attackerSide: createSide(0), defenderSide: createSide(1)

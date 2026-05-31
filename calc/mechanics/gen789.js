@@ -338,7 +338,7 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
     if (move.hits > 1) {
         desc.hits = move.hits;
     }
-    var turnOrder = attacker.stats.spe > defender.stats.spe ? 'first' : 'last';
+    var turnOrder = (field.isTrickRoom ? attacker.stats.spe < defender.stats.spe : attacker.stats.spe > defender.stats.spe) ? 'first' : 'last';
     var basePower = calculateBasePowerSMSSSV(gen, attacker, defender, move, field, hasAteAbilityTypeChange, desc);
     if (basePower === 0) {
         return result;
@@ -490,7 +490,7 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
 exports.calculateSMSSSV = calculateSMSSSV;
 function calculateBasePowerSMSSSV(gen, attacker, defender, move, field, hasAteAbilityTypeChange, desc) {
     var _a;
-    var turnOrder = attacker.stats.spe > defender.stats.spe ? 'first' : 'last';
+    var turnOrder = (field.isTrickRoom ? attacker.stats.spe < defender.stats.spe : attacker.stats.spe > defender.stats.spe) ? 'first' : 'last';
     var basePower;
     switch (move.name) {
         case 'Payback':

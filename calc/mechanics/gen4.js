@@ -138,7 +138,7 @@ function calculateDPP(gen, attacker, defender, move, field) {
     if (move.hits > 1) {
         desc.hits = move.hits;
     }
-    var turnOrder = attacker.stats.spe > defender.stats.spe ? 'first' : 'last';
+    var turnOrder = (field.isTrickRoom ? attacker.stats.spe < defender.stats.spe : attacker.stats.spe > defender.stats.spe) ? 'first' : 'last';
     switch (move.name) {
         case 'Brine':
             if (defender.curHP() <= defender.maxHP() / 2) {
