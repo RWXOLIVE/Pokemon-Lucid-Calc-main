@@ -381,12 +381,31 @@ function addSets(pokes, name) {
 }
 
 function checkExeptions(poke) {
+	if (typeof normalizeSpeciesName === "function") {
+		poke = normalizeSpeciesName(poke);
+	}
 	if (/^Alcremie-(?!Gmax$)/.test(poke)) {
 		return "Alcremie";
 	}
 	switch (poke) {
 	case 'Aegislash':
 		poke = "Aegislash-Blade";
+		break;
+	case 'Wormadam-Grassy':
+		poke = "Wormadam";
+		break;
+	case 'Oriocoro':
+		poke = "Oricorio";
+		break;
+	case 'Oriocoro-Baile':
+	case 'Oricorio-Baile':
+		poke = "Oricorio";
+		break;
+	case 'Oriocoro-Pau':
+	case 'Oriocoro-Pa\u2019u':
+	case 'Oricorio-Pau':
+	case 'Oricorio-Pa\u2019u':
+		poke = "Oricorio-Pa'u";
 		break;
 	case 'Basculin-Blue-Striped':
 		poke = "Basculin";

@@ -31,6 +31,23 @@ function startsWith(string, target) {
 	return (string || '').slice(0, target.length) === target;
 }
 
+function normalizeSpeciesName(name) {
+	if (!name) return name;
+	if (startsWith(name, "Wormadam-Grassy")) {
+		name = name.replace(/^Wormadam-Grassy/, "Wormadam");
+	}
+	if (startsWith(name, "Oriocoro")) {
+		name = name.replace(/^Oriocoro/, "Oricorio");
+	}
+	if (name === "Oricorio-Baile") {
+		name = "Oricorio";
+	}
+	if (name === "Oricorio-Pau" || name === "Oricorio-Pa\u2019u") {
+		name = "Oricorio-Pa'u";
+	}
+	return name;
+}
+
 var LEGACY_STATS_RBY = ["hp", "at", "df", "sl", "sp"];
 var LEGACY_STATS_GSC = ["hp", "at", "df", "sa", "sd", "sp"];
 var LEGACY_STATS = [[], LEGACY_STATS_RBY, LEGACY_STATS_GSC, LEGACY_STATS_GSC, LEGACY_STATS_GSC, LEGACY_STATS_GSC, LEGACY_STATS_GSC, LEGACY_STATS_GSC, LEGACY_STATS_GSC, LEGACY_STATS_GSC];
@@ -693,6 +710,7 @@ $(".set-selector").change(function () {
 				continue
 			}
 			var pok_name = next_poks[i].split("]")[1].split(" (")[0]
+			pok_name = normalizeSpeciesName(pok_name);
 			if (pok_name == "Zygarde-10%") {
 				pok_name = "Zygarde-10%25"
 			}
@@ -724,15 +742,16 @@ $(".set-selector").change(function () {
 
 	$('.trainer-pok-list-opposing').html(trpok_html)
 	var pokemonName = fullSetName.substring(0, fullSetName.indexOf(" ("));
+	var normalizedPokemonName = normalizeSpeciesName(pokemonName);
 	var setName = fullSetName.substring(fullSetName.indexOf("(") + 1, fullSetName.lastIndexOf(")"));
-	var pokemon = pokedex[pokemonName];
+	var pokemon = pokedex[pokemonName] || pokedex[normalizedPokemonName];
 	if (pokemon) {
 		var pokeObj = $(this).closest(".poke-info");
 		if (stickyMoves.getSelectedSide() === pokeObj.prop("id")) {
 			stickyMoves.clearStickyMove();
 		}
 		pokeObj.find(".teraToggle").prop("checked", false);
-		pokeObj.find(".analysis").attr("href", smogonAnalysis(pokemonName));
+		pokeObj.find(".analysis").attr("href", smogonAnalysis(normalizedPokemonName));
 		pokeObj.find(".type1").val(pokemon.types[0]);
 		pokeObj.find(".type2").val(pokemon.types[1]);
 		pokeObj.find(".hp .base").val(pokemon.bs.hp);
@@ -747,12 +766,14 @@ $(".set-selector").change(function () {
 		var moveObj;
 		var abilityObj = pokeObj.find(".ability");
 		var itemObj = pokeObj.find(".item");
-		var randset = $("#randoms").prop("checked") ? randdex[pokemonName] : undefined;
-		var regSets = pokemonName in setdex && setName in setdex[pokemonName];
+		var setLookupName = setdex[pokemonName] ? pokemonName : normalizedPokemonName;
+		var randLookupName = randdex[pokemonName] ? pokemonName : normalizedPokemonName;
+		var randset = $("#randoms").prop("checked") ? randdex[randLookupName] : undefined;
+		var regSets = setLookupName in setdex && setName in setdex[setLookupName];
 
 		if (randset) {
-			var listItems = randdex[pokemonName].items ? randdex[pokemonName].items : [];
-			var listAbilities = randdex[pokemonName].abilities ? randdex[pokemonName].abilities : [];
+			var listItems = randset.items ? randset.items : [];
+			var listAbilities = randset.abilities ? randset.abilities : [];
 			if (gen >= 3) $(this).closest('.poke-info').find(".ability-pool").show();
 			$(this).closest('.poke-info').find(".extraSetAbilities").text(listAbilities.join(', '));
 			if (gen >= 2) $(this).closest('.poke-info').find(".item-pool").show();
@@ -761,12 +782,12 @@ $(".set-selector").change(function () {
 				$(this).closest('.poke-info').find(".role-pool").show();
 				$(this).closest('.poke-info').find(".tera-type-pool").show();
 			}
-			var listRoles = randdex[pokemonName].roles ? Object.keys(randdex[pokemonName].roles) : [];
+			var listRoles = randset.roles ? Object.keys(randset.roles) : [];
 			$(this).closest('.poke-info').find(".extraSetRoles").text(listRoles.join(', '));
 			var listTeraTypes = [];
-			if (randdex[pokemonName].roles) {
-				for (var roleName in randdex[pokemonName].roles) {
-					var role = randdex[pokemonName].roles[roleName];
+			if (randset.roles) {
+				for (var roleName in randset.roles) {
+					var role = randset.roles[roleName];
 					for (var q = 0; q < role.teraTypes.length; q++) {
 						if (listTeraTypes.indexOf(role.teraTypes[q]) === -1) {
 							listTeraTypes.push(role.teraTypes[q]);
@@ -783,7 +804,7 @@ $(".set-selector").change(function () {
 			$(this).closest('.poke-info').find(".tera-type-pool").hide();
 		}
 		if (regSets || randset) {
-			var set = regSets ? correctHiddenPower(setdex[pokemonName][setName]) : randset;
+			var set = regSets ? correctHiddenPower(setdex[setLookupName][setName]) : randset;
 			if (regSets) {
 				pokeObj.find(".teraType").val(set.teraType || pokemon.types[0]);
 			}
@@ -874,9 +895,9 @@ $(".set-selector").change(function () {
 			baseForme = pokedex[pokemon.baseSpecies];
 		}
 		if (pokemon.otherFormes) {
-			showFormes(formeObj, pokemonName, pokemon, pokemonName);
+			showFormes(formeObj, normalizedPokemonName, pokemon, normalizedPokemonName);
 		} else if (baseForme && baseForme.otherFormes) {
-			showFormes(formeObj, pokemonName, baseForme, pokemon.baseSpecies);
+			showFormes(formeObj, normalizedPokemonName, baseForme, pokemon.baseSpecies);
 		} else {
 			formeObj.hide();
 		}
@@ -946,6 +967,7 @@ $(".forme").change(function () {
 		container = $(this).closest(".info-group").siblings(),
 		fullSetName = container.find(".select2-chosen").first().text(),
 		pokemonName = fullSetName.substring(0, fullSetName.indexOf(" (")),
+		normalizedPokemonName = normalizeSpeciesName(pokemonName),
 		setName = fullSetName.substring(fullSetName.indexOf("(") + 1, fullSetName.lastIndexOf(")"));
 
 	$(this).parent().siblings().find(".type1").val(altForme.types[0]);
@@ -956,10 +978,12 @@ $(".forme").change(function () {
 		baseStat.keyup();
 	}
 	var isRandoms = $("#randoms").prop("checked");
-	var pokemonSets = isRandoms ? randdex[pokemonName] : setdex[pokemonName];
+	var pokemonSets = isRandoms
+		? (randdex[pokemonName] || randdex[normalizedPokemonName])
+		: (setdex[pokemonName] || setdex[normalizedPokemonName]);
 	var chosenSet = pokemonSets && pokemonSets[setName];
 	var greninjaSet = $(this).val().indexOf("Greninja") !== -1;
-	var isAltForme = $(this).val() !== pokemonName;
+	var isAltForme = $(this).val() !== normalizedPokemonName;
 	if (isAltForme && abilities.indexOf(altForme.ab) !== -1 && !greninjaSet) {
 		container.find(".ability").val(altForme.ab);
 	} else if (greninjaSet) {
@@ -1035,9 +1059,13 @@ function getEffectiveItem(pokeInfo) {
 function createPokemon(pokeInfo) {
 	if (typeof pokeInfo === "string") { // in this case, pokeInfo is the id of an individual setOptions value whose moveset's tier matches the selected tier(s)
 		var name = pokeInfo.substring(0, pokeInfo.indexOf(" ("));
+		var normalizedName = normalizeSpeciesName(name);
 		var setName = pokeInfo.substring(pokeInfo.indexOf("(") + 1, pokeInfo.lastIndexOf(")"));
 		var isRandoms = $("#randoms").prop("checked");
-		var set = isRandoms ? randdex[name] : setdex[name][setName];
+		var lookupName = isRandoms
+			? (randdex[name] ? name : normalizedName)
+			: (setdex[name] ? name : normalizedName);
+		var set = isRandoms ? randdex[lookupName] : setdex[lookupName][setName];
 
 		var ivs = {};
 		var evs = {};
@@ -1072,7 +1100,7 @@ function createPokemon(pokeInfo) {
 			});
 		}
 
-		return new calc.Pokemon(gen, name, {
+		return new calc.Pokemon(gen, normalizedName, {
 			level: resolveSetLevel(set.level),
 			ability: set.ability,
 			abilityOn: true,
@@ -1086,11 +1114,14 @@ function createPokemon(pokeInfo) {
 		var setName = pokeInfo.find("input.set-selector").val();
 		var name;
 		if (setName.indexOf("(") === -1) {
-			name = setName;
+			name = normalizeSpeciesName(setName);
 		} else {
 			var pokemonName = setName.substring(0, setName.indexOf(" ("));
-			var species = pokedex[pokemonName];
-			name = (species.otherFormes || (species.baseSpecies && species.baseSpecies !== pokemonName)) ? pokeInfo.find(".forme").val() : pokemonName;
+			var normalizedPokemonName = normalizeSpeciesName(pokemonName);
+			var species = pokedex[pokemonName] || pokedex[normalizedPokemonName];
+			name = (species && (species.otherFormes || (species.baseSpecies && species.baseSpecies !== normalizedPokemonName)))
+				? pokeInfo.find(".forme").val()
+				: normalizedPokemonName;
 		}
 
 		var baseStats = {};
@@ -1844,10 +1875,11 @@ function getSrcImgPokemon(poke) {
 	if (!poke) {
 		return
 	}
-	if (poke.name == "Aegislash-Shield") {
+	var normalizedName = normalizeSpeciesName(poke.name);
+	if (normalizedName == "Aegislash-Shield") {
 		return `https://raw.githubusercontent.com/May8th1995/sprites/master/Aegislash.png`
 	} else {
-		return `https://raw.githubusercontent.com/May8th1995/sprites/master/${poke.name}.png`
+		return `https://raw.githubusercontent.com/May8th1995/sprites/master/${normalizedName}.png`
 	}
 }
 
