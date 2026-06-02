@@ -528,7 +528,13 @@ function formatMoveAccuracyValue(accuracy) {
 	return (rounded % 1 === 0 ? rounded.toFixed(0) : rounded.toFixed(1)) + "%";
 }
 
-function updateMoveDataForSide(pokeInfo, attacker, defender, field, attackerSpeed, defenderSpeed) {
+function getDisplayedMovePp(meta, useMaxPp) {
+	if (!meta || typeof meta.pp !== "number") return "--";
+	if (!useMaxPp) return meta.pp;
+	return Math.floor(meta.pp * 8 / 5);
+}
+
+function updateMoveDataForSide(pokeInfo, attacker, defender, field, attackerSpeed, defenderSpeed, useMaxPp) {
 	if (!pokeInfo || !pokeInfo.length) return;
 	for (var i = 0; i < 4; i++) {
 		var moveRow = pokeInfo.find(".move" + (i + 1));
@@ -536,7 +542,7 @@ function updateMoveDataForSide(pokeInfo, attacker, defender, field, attackerSpee
 		var move = attacker && attacker.moves && attacker.moves[i] ? attacker.moves[i] : null;
 		var lookupName = move && move.originalName ? move.originalName : moveName;
 		var meta = getMoveMeta(lookupName);
-		var ppText = meta && typeof meta.pp === "number" ? meta.pp : "--";
+		var ppText = getDisplayedMovePp(meta, useMaxPp);
 		var accuracy = getDynamicMoveAccuracy(lookupName, move, attacker, defender, field, attackerSpeed, defenderSpeed);
 		moveRow.children(".move-data-row").text("PP " + ppText + " | ACC " + formatMoveAccuracyValue(accuracy));
 	}
@@ -546,8 +552,8 @@ function updateMovePpAccDisplays(p1, p2, field, displaySpeeds) {
 	ensureMoveDataRows();
 	var p1Speed = Array.isArray(displaySpeeds) ? displaySpeeds[0] : undefined;
 	var p2Speed = Array.isArray(displaySpeeds) ? displaySpeeds[1] : undefined;
-	updateMoveDataForSide($("#p1"), p1, p2, field, p1Speed, p2Speed);
-	updateMoveDataForSide($("#p2"), p2, p1, field, p2Speed, p1Speed);
+	updateMoveDataForSide($("#p1"), p1, p2, field, p1Speed, p2Speed, false);
+	updateMoveDataForSide($("#p2"), p2, p1, field, p2Speed, p1Speed, true);
 }
 
 function setSpeedPngIndicator(pokeInfo, speedState) {
