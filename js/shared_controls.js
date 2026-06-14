@@ -1518,6 +1518,32 @@ function getSelectOptions(arr, sort, defaultOption) {
 	}
 	return r;
 }
+
+function matchesSetSearch(option, term) {
+	if (!term) {
+		return true;
+	}
+	var terms = term.toUpperCase().split(/\s+/).filter(Boolean);
+	var searchFields = [
+		option.pokemon,
+		option.set,
+		option.nickname
+	];
+	return terms.every(function (searchTerm) {
+		for (var i = 0; i < searchFields.length; i++) {
+			var field = searchFields[i];
+			if (!field) {
+				continue;
+			}
+			field = field.toUpperCase();
+			if (field.indexOf(searchTerm) === 0 || field.indexOf("-" + searchTerm) >= 0 || field.indexOf(" " + searchTerm) >= 0) {
+				return true;
+			}
+		}
+		return false;
+	});
+}
+
 var stickyMoves = (function () {
 	var lastClicked = 'resultMoveL1';
 	$(".result-move").click(function () {
@@ -1619,7 +1645,10 @@ function getTerrainEffects() {
 
 function loadDefaultLists() {
 	$(".set-selector").select2({
-		formatResult: function (object) {
+		formatResult: function (object, container, query) {
+			if (query && query.term && object.id) {
+				return object.text;
+			}
 			if ($("#randoms").prop("checked")) {
 				return object.pokemon;
 			} else {
@@ -1630,17 +1659,16 @@ function loadDefaultLists() {
 			var pageSize = 30;
 			var results = [];
 			var options = getSetOptions();
+			var hasSearchTerm = query.term && query.term.trim();
 			for (var i = 0; i < options.length; i++) {
 				var option = options[i];
-				var pokeName = option.pokemon.toUpperCase();
-				if (!query.term || query.term.toUpperCase().split(" ").every(function (term) {
-					return pokeName.indexOf(term) === 0 || pokeName.indexOf("-" + term) >= 0 || pokeName.indexOf(" " + term) >= 0;
-				})) {
-					if ($("#randoms").prop("checked")) {
-						if (option.id) results.push(option);
-					} else {
-						results.push(option);
-					}
+				if (!matchesSetSearch(option, query.term)) {
+					continue;
+				}
+				if ($("#randoms").prop("checked")) {
+					if (option.id) results.push(option);
+				} else if (!hasSearchTerm || option.id) {
+					results.push(option);
 				}
 			}
 			query.callback({
@@ -1676,11 +1704,7 @@ function loadCustomList(id) {
 			var options = getSetOptions();
 			for (var i = 0; i < options.length; i++) {
 				var option = options[i];
-				var pokeName = option.pokemon.toUpperCase();
-				var setName = option.set ? option.set.toUpperCase() : option.set;
-				if (option.isCustom && option.set && (!query.term || query.term.toUpperCase().split(" ").every(function (term) {
-					return pokeName.indexOf(term) === 0 || pokeName.indexOf("-" + term) >= 0 || pokeName.indexOf(" " + term) >= 0 || setName.indexOf(term) === 0 || setName.indexOf("-" + term) >= 0 || setName.indexOf(" " + term) >= 0;
-				}))) {
+				if (option.isCustom && option.set && matchesSetSearch(option, query.term)) {
 					results.push(option);
 				}
 			}
